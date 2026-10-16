@@ -32,7 +32,7 @@ func Name(b []byte) (name, rest []byte) {
 	if len(b) > 1 && b[0] == '/' {
 		b = b[1:]
 	}
-	if len(b) > 1 && b[len(b)-1] == '>' {
+	if len(b) > 0 && b[len(b)-1] == '>' {
 		b = b[:len(b)-1]
 	}
 	if len(b) > 1 && b[len(b)-1] == '/' {
