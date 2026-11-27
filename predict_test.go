@@ -128,6 +128,7 @@ func TestDetectTagDocs(t *testing.T) {
 		{"nested same name", `<top><r><r>deep</r></r><r>flat</r></top>`, "r"},
 		{"bom", "\xEF\xBB\xBF<db><a>1</a><a>2</a></db>", "a"},
 		{"doctype before root", `<!DOCTYPE db [<!ENTITY e "v">]><db><row/><row/></db>`, "row"},
+		{"empty-name tags skipped", `<db><></><></><rec>1</rec><rec>2</rec></db>`, "rec"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
@@ -164,6 +165,7 @@ func TestDetectTagErrors(t *testing.T) {
 		{"text only", `no markup here`, "Tag is required"},
 		{"utf16 bom", "\xFE\xFF\x00<", "UTF-16"},
 		{"bad markup", `<db><!x></db>`, "unknown markup"},
+		{"empty-name tags only", `<db><></><></></db>`, "Tag is required"},
 	}
 	for _, c := range cases {
 		t.Run(c.name, func(t *testing.T) {
