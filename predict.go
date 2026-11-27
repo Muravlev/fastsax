@@ -276,7 +276,8 @@ func scanRecord(data []byte, tape []Event, pr *fieldPredictor) ([]Event, int, er
 // first window (ChunkSize bytes), scans it with scanChunk and picks the first
 // element name at depth 1 (a direct child of the root) that starts at least
 // twice — or the only depth-1 name, if the window holds fewer than two
-// records. The buffered bytes are re-fed through the returned reader, so the
+// records. Empty names (degenerate tags such as "<>") are never candidates.
+// The buffered bytes are re-fed through the returned reader, so the
 // pipeline parses the complete input. On success cfg.Tag is set (to a copy)
 // and cfg.OnDetect, if any, is invoked with it.
 //
@@ -311,6 +312,11 @@ func detectTag(r io.Reader, cfg *RecordConfig) (io.Reader, error) {
 	var tag []byte
 	note := func(b []byte) []byte {
 		name, _ := Name(b)
+		if len(name) == 0 {
+			// Degenerate tag such as "<>": an empty Tag means "auto-detect"
+			// to ParseRecords, so it can never be a record tag.
+			return nil
+		}
 		for i := range cands {
 			if bytes.Equal(cands[i].name, name) {
 				cands[i].count++
